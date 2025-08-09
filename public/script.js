@@ -259,3 +259,23 @@ gotoBtn?.addEventListener("click", () => {
 });
 
 carregarMusicas();
+
+// ======= BOTÃO ADMIN =======
+const adminBtn = document.createElement("button");
+adminBtn.textContent = "Admin";
+adminBtn.style.position = "fixed";
+adminBtn.style.top = "10px";
+adminBtn.style.right = "10px";
+adminBtn.style.zIndex = "1000";
+adminBtn.style.padding = "10px 20px";
+adminBtn.style.backgroundColor = "#0070f3";
+adminBtn.style.color = "white";
+adminBtn.style.border = "none";
+adminBtn.style.borderRadius = "5px";
+adminBtn.style.cursor = "pointer";
+
+adminBtn.addEventListener("click", () => {
+  window.location.href = "/admin";
+});
+
+document.body.appendChild(adminBtn);
