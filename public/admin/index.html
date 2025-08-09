@@ -1,0 +1,213 @@
+<!-- admin/index.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <title>Painel Admin - Calendário</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;padding:20px;background:#f4f6fb}
+    .card{background:#fff;padding:18px;border-radius:8px;max-width:900px;margin:20px auto;box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+    input,textarea,select{width:100%;padding:8px;margin:6px 0;border:1px solid #ddd;border-radius:6px}
+    button{padding:10px 14px;border-radius:8px;border:none;background:#4b6cff;color:#fff;cursor:pointer}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .top{display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .row{display:flex;gap:8px}
+    .small{width:120px;}
+    .list-item{padding:10px;border-bottom:1px solid #eee}
+    .danger{background:#ff6b6b}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="top">
+      <h2>Painel Admin</h2>
+      <div>
+        <button id="logoutBtn" style="display:none">Sair</button>
+      </div>
+    </div>
+
+    <div id="loginArea">
+      <h3>Login</h3>
+      <form id="loginForm">
+        <input name="username" placeholder="Usuário (ex: admin)" required/>
+        <input name="password" placeholder="Senha" type="password" required/>
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+
+    <div id="adminArea" style="display:none">
+      <h3>Adicionar / Editar Música</h3>
+      <form id="musicForm">
+        <div class="grid">
+          <div>
+            <label>Data (AAAA-MM-DD)</label>
+            <input name="data" placeholder="2025-08-06" required/>
+          </div>
+          <div>
+            <label>Posição (opcional — deixar vazio para adicionar ao final)</label>
+            <input name="posicao" placeholder="1, 2, ..." />
+          </div>
+        </div>
+
+        <input name="titulo" placeholder="Título da música"/>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="audioUrl" name="audio" placeholder="URL do arquivo .mp3 (ou faça upload abaixo)" />
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <input id="audioFile" type="file" accept="audio/*" />
+            <button id="uploadBtn" type="button">Fazer upload</button>
+          </div>
+        </div>
+
+        <input name="capa" placeholder="URL da capa (opcional)"/>
+        <textarea name="letra" rows="6" placeholder="Letra (opcional)"></textarea>
+        <div style="display:flex;gap:8px">
+          <button type="submit">Salvar</button>
+          <button id="previewBtn" type="button">Preview (abrir música)</button>
+        </div>
+      </form>
+
+      <hr/>
+      <h4>Músicas existentes</h4>
+      <div id="listaMusicas"></div>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const musicForm = document.getElementById("musicForm");
+    const loginArea = document.getElementById("loginArea");
+    const adminArea = document.getElementById("adminArea");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const listaMusicas = document.getElementById("listaMusicas");
+    const audioFile = document.getElementById("audioFile");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const audioUrlInput = document.getElementById("audioUrl");
+    const previewBtn = document.getElementById("previewBtn");
+
+    loginForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(loginForm);
+      const body = { username: fd.get("username"), password: fd.get("password") };
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        loginArea.style.display = "none";
+        adminArea.style.display = "block";
+        logoutBtn.style.display = "inline-block";
+        carregarLista();
+      } else {
+        const json = await res.json();
+        alert(json?.error || "Erro no login");
+      }
+    };
+
+    logoutBtn.onclick = async () => {
+      await fetch("/api/logout", { method: "POST" });
+      loginArea.style.display = "block";
+      adminArea.style.display = "none";
+      logoutBtn.style.display = "none";
+    };
+
+    uploadBtn.onclick = async () => {
+      if (!audioFile.files || audioFile.files.length === 0) return alert("Selecione um arquivo primeiro");
+      const fd = new FormData();
+      fd.append("audio", audioFile.files[0]);
+      uploadBtn.disabled = true;
+      uploadBtn.textContent = "Enviando...";
+      try {
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const json = await res.json();
+        if (res.ok) {
+          audioUrlInput.value = json.url;
+          alert("Upload feito! URL preenchida no campo de áudio.");
+        } else {
+          alert(json?.error || "Erro no upload");
+        }
+      } catch (err) {
+        alert("Erro no upload");
+        console.error(err);
+      } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = "Fazer upload";
+      }
+    };
+
+    musicForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(musicForm);
+      const json = Object.fromEntries(fd.entries());
+      // Se campo posicao for vazio, delete para usar append automático
+      if (!json.posicao) delete json.posicao;
+      const res = await fetch("/api/musicas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(json)
+      });
+      if (res.ok) {
+        alert("Música salva!");
+        musicForm.reset();
+        carregarLista();
+      } else {
+        const j = await res.json();
+        alert(j?.error || "Erro ao salvar");
+      }
+    };
+
+    previewBtn.onclick = () => {
+      const url = audioUrlInput.value.trim();
+      if (!url) return alert("Preencha a URL do áudio primeiro (ou faça upload).");
+      window.open(url, "_blank");
+    };
+
+    async function carregarLista() {
+      const res = await fetch("/api/admin/musicas");
+      if (!res.ok) return;
+      const rows = await res.json();
+      listaMusicas.innerHTML = rows.map(r => {
+        return `<div class="list-item">
+          <strong>${r.data} — Pos ${r.posicao}</strong>
+          <div>${r.titulo || "(sem título)"}</div>
+          <div style="font-size:12px;color:#666">${r.audio || ""}</div>
+          <div style="margin-top:6px">
+            <button onclick="editar(${r.id})">Editar</button>
+            <button onclick="deletar(${r.id})" class="danger" style="margin-left:8px;background:#ff6b6b">Deletar</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    // Funções globais para editar/deletar (injetadas no escopo global)
+    window.editar = async (id) => {
+      // Carrega a música e pré-preenche o form
+      const res = await fetch("/api/admin/musicas");
+      if (!res.ok) return alert("Erro");
+      const rows = await res.json();
+      const m = rows.find(x => x.id === id);
+      if (!m) return alert("Não encontrado");
+      musicForm.data.value = m.data;
+      musicForm.posicao.value = m.posicao;
+      musicForm.titulo.value = m.titulo || "";
+      musicForm.audio.value = m.audio || "";
+      musicForm.capa.value = m.capa || "";
+      musicForm.letra.value = m.letra || "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.deletar = async (id) => {
+      if (!confirm("Deseja deletar esta música?")) return;
+      const res = await fetch(`/api/musicas/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        alert("Deletado");
+        carregarLista();
+      } else {
+        alert("Erro ao deletar");
+      }
+    };
+  </script>
+</body>
+</html>
+
