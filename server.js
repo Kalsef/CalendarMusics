@@ -52,7 +52,7 @@ app.use(session({
 
 // Servir estáticos
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/admin", express.static(path.join(__dirname, "admin")));
+
 app.use("/uploads", express.static(uploadsDir)); // arquivos de áudio públicos
 
 let db;
