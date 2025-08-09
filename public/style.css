@@ -1,0 +1,617 @@
+/* public/style.css */
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Courier New', Segoe UI, Courier New, Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+}
+
+body {
+  background: #1e1e2f;
+  color: #f0f0f5;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 50px 30px;
+}
+
+/* Container principal */
+.container {
+  display: flex;
+  gap: 50px;
+  max-width: 1300px;
+  width: 100%;
+}
+
+/* === LEFT (Calendário) === */
+.left {
+  flex: 1.1;
+  background: #2a2a40;
+  border-radius: 16px;
+  padding: 35px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Month header */
+.month {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 25px;
+}
+
+.month i {
+  cursor: pointer;
+  font-size: 2rem;
+  color: #aaa;
+  transition: color 0.3s ease;
+}
+
+.month i:hover {
+  color: #7dbfff;
+}
+
+.date {
+  flex-grow: 1;
+  text-align: center;
+}
+
+/* Weekdays */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: #a0a0b0;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #444466;
+}
+
+/* Dias */
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 70px;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.day {
+  position: relative;
+  width: 100%;
+  height: 70px;
+  background: #3b3b55;
+  border-radius: 10px;
+  color: #c0c0d0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+  margin: 0;
+  padding: 0;
+  z-index: 1; /* número sempre acima */
+}
+
+/* Hover com fundo vermelho e coração branco no topo esquerdo */
+.day:hover {
+  background-color: #ff4c4c;
+  color: #fff;
+  transform: scale(1.05);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.day:hover::after {
+  content: "";
+  position: absolute;
+  top: 8px; /* Posiciona o coração no canto superior esquerdo */
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  background: url('https://cdn-icons-png.flaticon.com/512/833/833472.png') no-repeat center center;
+  background-size: contain;
+  filter: brightness(0) invert(1);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1; /* Coração vai para baixo para não cobrir o número */
+  animation: pulse 1s infinite;
+}
+
+.prev-date,
+.next-date {
+  background: transparent;
+  color: #555573;
+  cursor: default;
+}
+
+.today {
+  background: #4889ca;
+  color: #565686;
+  font-weight: 800;
+}
+
+.event {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #3b3b55;
+  color: #c0c0d0;
+  font-weight: 600;
+  font-size: 1.4rem;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.event::before {
+  content: "";
+  position: absolute;
+  bottom: 0; /* Posiciona a linha na parte inferior */
+  left: 0;
+  width: 100%;
+  height: 4px; /* Espessura da linha */
+  background-color: #7dbfff; /* Cor da linha */
+  border-radius: 2px;
+}
+
+.day.event {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #3b3b55;
+  color: #c0c0d0;
+  font-weight: 600;
+  font-size: 1.4rem;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.day.event:hover {
+  background-color: #ff4c4c; /* Cor de fundo no hover */
+  color: #fff;
+  transform: scale(1.05);
+}
+
+.day.event::before {
+  content: "";
+  position: absolute;
+  bottom: 0; /* Linha na parte inferior */
+  left: 0;
+  width: 100%;
+  height: 4px; /* Espessura da linha */
+  background-color: #ff4c4c; /* Cor da linha */
+  border-radius: 2px;
+}
+
+
+
+/* Coração branco e fundo vermelho para dia selecionado */
+.selected {
+  background-color: #6c70a7;
+  color: #fff;
+  font-weight: 700;
+  position: relative;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Botões e input */
+.goto-today {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.goto {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+}
+
+.date-input {
+  flex-grow: 1;
+  padding: 12px 16px;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  background: #4a4a70;
+  color: #eee;
+  border: none;
+  outline: none;
+}
+
+.date-input:focus {
+  background: #5e6eff;
+  color: #fff;
+}
+
+.goto-btn,
+.today-btn {
+  background: #5a6eff;
+  border: none;
+  color: white;
+  font-weight: 700;
+  padding: 12px 26px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.goto-btn:hover,
+.today-btn:hover {
+  background: #7dbfff;
+}
+
+/* === RIGHT (Player e Info) === */
+.right {
+  flex: 1.4;
+  background: #2a2a40;
+  border-radius: 16px;
+  padding: 35px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Data */
+.today-date {
+  display: flex;
+  justify-content: space-between;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #7dbfff;
+}
+
+.event-day {
+  font-size: 5rem;
+  font-weight: 900;
+  color: #fff9f5;
+  line-height: 1;
+}
+
+.event-date {
+  font-size: 1.8rem;
+  color: #a0a0b0;
+  align-self: flex-end;
+}
+
+/* Eventos */
+.events {
+  background: #3b3b55;
+  border-radius: 12px;
+  padding: 16px 22px;
+  color: #c0c0d0;
+  font-weight: 600;
+  font-size: 1.2rem;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.event {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.event .title i {
+  color: #ffffff;
+  margin-right: 8px;
+}
+
+.event-time {
+  font-size: 1rem;
+  color: #8888aa;
+}
+
+/* Player */
+.player {
+  background: #3b3b55;
+  border-radius: 16px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.4);
+}
+
+.cover {
+  width: 100%;
+  max-height: 300px;
+  border-radius: 14px;
+  object-fit: cover;
+  display: none;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.descricao h2 {
+  font-size: 2.2rem;
+  text-align: center;
+  font-weight: 800;
+  color: #f0f0f5;
+  min-height: 60px;
+}
+
+/* Progresso */
+.duracao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tempo {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  color: #bbb;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+}
+
+.barra {
+  position: relative; /* container para o coração absoluto */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 10px;
+  background: #555577;
+  border-radius: 6px;
+  cursor: pointer;
+  overflow: visible;
+}
+
+progress#progressBar {
+  width: 100%;
+  height: 10px;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 6px;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+}
+
+progress#progressBar::-webkit-progress-bar {
+  background-color: transparent;
+}
+
+progress#progressBar::-webkit-progress-value {
+  background-color: #7dbfff;
+}
+
+progress#progressBar::-moz-progress-bar {
+  background-color: #7dbfff;
+}
+
+.coracao {
+  position: absolute;
+  top: 50%;
+  left: 0%; /* Posicionado à esquerda */
+  width: 24px;
+  height: 24px;
+  background: url('https://cdn-icons-png.flaticon.com/512/833/833472.png') no-repeat center center;
+  background-size: contain;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+  filter: drop-shadow(0 0 3px rgba(255,0,0,0.7));
+}
+
+/* Controles */
+.controles {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+}
+
+.controles button {
+  background: #5a6eff;
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 1.3rem;
+  padding: 12px 36px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.controles button:hover {
+  background: #7dbfff;
+}
+
+/* Letra da música */
+.lyric {
+  background: #222240;
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  white-space: pre-line;
+  color: #ccc;
+  max-height: 200px;
+  overflow-y: auto; /* Permite rolar */
+}
+
+/* Estilizando a barra de rolagem */
+.lyric::-webkit-scrollbar {
+  width: 12px; /* Largura da barra de rolagem */
+}
+
+.lyric::-webkit-scrollbar-track {
+  background: #444466; /* Cor do fundo da barra de rolagem */
+  border-radius: 6px; /* Cantos arredondados */
+}
+
+.lyric::-webkit-scrollbar-thumb {
+  background: #7dbfff; /* Cor da parte que pode ser movida */
+  border-radius: 6px; /* Cantos arredondados */
+  border: 3px solid #444466; /* Borda para a parte deslizante */
+}
+
+.lyric::-webkit-scrollbar-thumb:hover {
+  background: #5a6eff; /* Cor da parte deslizante quando hover */
+}
+
+
+/* === Responsivo para dispositivos móveis === */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px 16px;
+  }
+
+  .container {
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  .left,
+  .right {
+    padding: 20px;
+  }
+
+  .month {
+    font-size: 1.5rem;
+  }
+
+  .month i {
+    font-size: 1.5rem;
+  }
+
+  .weekdays {
+    font-size: 1rem;
+  }
+
+  .days {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    grid-auto-rows: 50px;
+  }
+
+  .day {
+    font-size: 1rem;
+    height: 50px;
+  }
+
+  .event-day {
+    font-size: 3rem;
+    z-index: 10;
+  }
+
+  .event-date {
+    font-size: 1.4rem;
+  }
+
+  .events {
+    font-size: 1rem;
+    max-height: 120px;
+  }
+
+  .player {
+    padding: 20px;
+  }
+
+  .descricao h2 {
+    font-size: 1.5rem;
+    min-height: 40px;
+  }
+
+  .duracao .tempo {
+    font-size: 1rem;
+  }
+
+  .coracao {
+    width: 18px;
+    height: 18px;
+  }
+
+  .controles button {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+
+  .lyric {
+    font-size: 1rem;
+    max-height: 150px;
+  }
+
+  .goto-today {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .goto {
+    flex-direction: column;
+  }
+
+  .date-input {
+    width: 100%;
+    font-size: 1rem;
+    padding: 10px 12px;
+  }
+
+  .goto-btn,
+  .today-btn {
+    font-size: 1rem;
+    padding: 10px 18px;
+  }
+
+  .cover {
+    max-height: 200px;
+  }
+}
+.music-tab-btn {
+  background-color: #3b3b55;        /* tom escuro similar aos dias */
+  color: #c0c0d0;                   /* texto clarinho */
+  border: none;
+  padding: 12px 24px;               /* mais espaçamento, alinhado com seus botões */
+  margin: 4px 6px 4px 0;            /* espaçamento entre botões */
+  cursor: pointer;
+  border-radius: 10px;              /* bordas arredondadas como outros elementos */
+  font-size: 1.1rem;                /* tamanho de fonte próximo ao padrão */
+  font-weight: 600;
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+  opacity: 0.6;
+  user-select: none;
+  box-shadow: 0 0 10px rgba(125, 191, 255, 0.3); /* leve brilho azul */
+}
+
+.music-tab-btn.active {
+  background-color: #5aaafa;        /* azul claro para o ativo */
+  color: #1e1e2f;                  /* texto escuro no ativo para contraste */
+  opacity: 1;
+  box-shadow: 0 0 20px rgba(125, 191, 255, 0.8); /* brilho mais forte no ativo */
+}
+
+.music-tab-btn:hover:not(.active) {
+  background-color: #5a6eff;        /* azul mais forte no hover */
+  color: #f0f0f5;                   /* texto quase branco no hover */
+  opacity: 0.9;
+  box-shadow: 0 0 15px rgba(93, 110, 255, 0.6);
+}
